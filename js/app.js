@@ -45,12 +45,12 @@ jQuery(function ($) {
 			this.footerTemplate = Handlebars.compile($('#footer-template').html());
 			this.bindEvents();
 
-			new Router({
+      new Router({
 				'/:filter': function (filter) {
 					this.filter = filter;
 					this.render();
 				}.bind(this)
-			}).init('/all');
+			}).init('/all');      
 		},
 		bindEvents: function () {
 			$('#new-todo').on('keyup', this.create.bind(this));
