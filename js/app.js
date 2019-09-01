@@ -53,28 +53,28 @@ jQuery(function ($) {
 			}).init('/all');      
 		},
 		bindEvents: function () {
-			$('#new-todo').on('keyup', this.create.bind(this));
-			$('#toggle-all').on('change', this.toggleAll.bind(this));
-			$('#footer').on('click', '#clear-completed', this.destroyCompleted.bind(this));
+			$('#new-todo').on('keyup', create.bind(App));
+			$('#toggle-all').on('change', toggleAll.bind(App));
+			$('#footer').on('click', '#clear-completed', destroyCompleted.bind(App));
 			$('#todo-list')
-				.on('change', '.toggle', this.toggle.bind(this))
-				.on('dblclick', 'label', this.edit.bind(this))
-				.on('keyup', '.edit', this.editKeyup.bind(this))
-				.on('focusout', '.edit', this.update.bind(this))
+				.on('change', '.toggle', toggle.bind(App))
+				.on('dblclick', 'label', edit.bind(App))
+				.on('keyup', '.edit', editKeyup.bind(App))
+				.on('focusout', '.edit', update.bind(App))
 				.on('click', '.destroy', destroy.bind(App));
 		},
 		render: function () {
-			var todos = this.getFilteredTodos();
+			var todos = getFilteredTodos();
 			$('#todo-list').html(this.todoTemplate(todos));
 			$('#main').toggle(todos.length > 0);
-			$('#toggle-all').prop('checked', this.getActiveTodos().length === 0);
+			$('#toggle-all').prop('checked', getActiveTodos().length === 0);
 			this.renderFooter();
 			$('#new-todo').focus();
 			util.store('todos-jquery', this.todos);
 		},
 		renderFooter: function () {
 			var todoCount = this.todos.length;
-			var activeTodoCount = this.getActiveTodos().length;
+			var activeTodoCount = getActiveTodos().length;
 			var template = this.footerTemplate({
 				activeTodoCount: activeTodoCount,
 				activeTodoWord: util.pluralize(activeTodoCount, 'item'),
@@ -84,108 +84,108 @@ jQuery(function ($) {
 
 			$('#footer').toggle(todoCount > 0).html(template);
 		},
-		toggleAll: function (e) {
-			var isChecked = $(e.target).prop('checked');
+		// toggleAll: function (e) {
+		// 	var isChecked = $(e.target).prop('checked');
 
-			this.todos.forEach(function (todo) {
-				todo.completed = isChecked;
-			});
+		// 	this.todos.forEach(function (todo) {
+		// 		todo.completed = isChecked;
+		// 	});
 
-			this.render();
-		},
-		getActiveTodos: function () {
-			return this.todos.filter(function (todo) {
-				return !todo.completed;
-			});
-		},
-		getCompletedTodos: function () {
-			return this.todos.filter(function (todo) {
-				return todo.completed;
-			});
-		},
-		getFilteredTodos: function () {
-			if (this.filter === 'active') {
-				return this.getActiveTodos();
-			}
+		// 	this.render();
+		// },
+		// getActiveTodos: function () {
+		// 	return this.todos.filter(function (todo) {
+		// 		return !todo.completed;
+		// 	});
+		// },
+		// getCompletedTodos: function () {
+		// 	return this.todos.filter(function (todo) {
+		// 		return todo.completed;
+		// 	});
+		// },
+		// getFilteredTodos: function () {
+		// 	if (this.filter === 'active') {
+		// 		return this.getActiveTodos();
+		// 	}
 
-			if (this.filter === 'completed') {
-				return this.getCompletedTodos();
-			}
+		// 	if (this.filter === 'completed') {
+		// 		return this.getCompletedTodos();
+		// 	}
 
-			return this.todos;
-		},
-		destroyCompleted: function () {
-			this.todos = this.getActiveTodos();
-			this.filter = 'all';
-			this.render();
-		},
-		// accepts an element from inside the `.item` div and
-		// returns the corresponding index in the `todos` array
-		indexFromEl: function (el) {
-			var id = $(el).closest('li').data('id');
-			var todos = this.todos;
-			var i = todos.length;
+		// 	return this.todos;
+		// },
+		// destroyCompleted: function () {
+		// 	this.todos = this.getActiveTodos();
+		// 	this.filter = 'all';
+		// 	this.render();
+		// },
+		// // accepts an element from inside the `.item` div and
+		// // returns the corresponding index in the `todos` array
+		// indexFromEl: function (el) {
+		// 	var id = $(el).closest('li').data('id');
+		// 	var todos = this.todos;
+		// 	var i = todos.length;
 
-			while (i--) {
-				if (todos[i].id === id) {
-					return i;
-				}
-			}
-		},
-		create: function (e) {
-			var $input = $(e.target);
-			var val = $input.val().trim();
+		// 	while (i--) {
+		// 		if (todos[i].id === id) {
+		// 			return i;
+		// 		}
+		// 	}
+		// },
+		// create: function (e) {
+		// 	var $input = $(e.target);
+		// 	var val = $input.val().trim();
 
-			if (e.which !== ENTER_KEY || !val) {
-				return;
-			}
+		// 	if (e.which !== ENTER_KEY || !val) {
+		// 		return;
+		// 	}
 
-			this.todos.push({
-				id: util.uuid(),
-				title: val,
-				completed: false
-			});
+		// 	this.todos.push({
+		// 		id: util.uuid(),
+		// 		title: val,
+		// 		completed: false
+		// 	});
 
-			$input.val('');
+		// 	$input.val('');
 
-			this.render();
-		},
-		toggle: function (e) {
-			var i = this.indexFromEl(e.target);
-			this.todos[i].completed = !this.todos[i].completed;
-			this.render();
-		},
-		edit: function (e) {
-			var $input = $(e.target).closest('li').addClass('editing').find('.edit');
-			$input.val($input.val()).focus();
-		},
-		editKeyup: function (e) {
-			if (e.which === ENTER_KEY) {
-				e.target.blur();
-			}
+		// 	this.render();
+		// },
+		// toggle: function (e) {
+		// 	var i = this.indexFromEl(e.target);
+		// 	this.todos[i].completed = !this.todos[i].completed;
+		// 	this.render();
+		// },
+		// edit: function (e) {
+		// 	var $input = $(e.target).closest('li').addClass('editing').find('.edit');
+		// 	$input.val($input.val()).focus();
+		// },
+		// editKeyup: function (e) {
+		// 	if (e.which === ENTER_KEY) {
+		// 		e.target.blur();
+		// 	}
 
-			if (e.which === ESCAPE_KEY) {
-				$(e.target).data('abort', true).blur();
-			}
-		},
-		update: function (e) {
-			var el = e.target;
-			var $el = $(el);
-			var val = $el.val().trim();
+		// 	if (e.which === ESCAPE_KEY) {
+		// 		$(e.target).data('abort', true).blur();
+		// 	}
+		// },
+		// update: function (e) {
+		// 	var el = e.target;
+		// 	var $el = $(el);
+		// 	var val = $el.val().trim();
 
-			if (!val) {
-				destroy(e);
-				return;
-			}
+		// 	if (!val) {
+		// 		this.destroy(e);
+		// 		return;
+		// 	}
 
-			if ($el.data('abort')) {
-				$el.data('abort', false);
-			} else {
-				this.todos[this.indexFromEl(el)].title = val;
-			}
+		// 	if ($el.data('abort')) {
+		// 		$el.data('abort', false);
+		// 	} else {
+		// 		this.todos[this.indexFromEl(el)].title = val;
+		// 	}
 
-			this.render();
-		},
+		// 	this.render();
+		// },
 		// destroy: function (e) {
 		// 	this.todos.splice(this.indexFromEl(e.target), 1);
 		// 	this.render();
@@ -193,9 +193,125 @@ jQuery(function ($) {
 	};
 
 	App.init();
-});
 
-function destroy(e) {
-	this.todos.splice(this.indexFromEl(e.target), 1);
-	this.render();
-}
+	// Insert functions here
+
+	function toggleAll(e) {
+		var isChecked = $(e.target).prop('checked');
+
+		App.todos.forEach(function (todo) {
+			todo.completed = isChecked;
+		});
+
+		App.render();
+	}
+
+	function getActiveTodos() {
+		return App.todos.filter(function (todo) {
+			return !todo.completed;
+		});
+	}
+
+	function getCompletedTodos() {
+		return App.todos.filter(function (todo) {
+			return todo.completed;
+		});
+	}
+
+	function getFilteredTodos() {
+		if (App.filter === 'active') {
+			return getActiveTodos();
+		}
+
+		if (App.filter === 'completed') {
+			return getCompletedTodos();
+		}
+
+		return App.todos;
+	}
+
+	function destroyCompleted() {
+		App.todos = getActiveTodos();
+		App.filter = 'all';
+		App.render();
+	}
+
+		// accepts an element from inside the `.item` div and
+	// returns the corresponding index in the `todos` array
+	function indexFromEl(el) {
+		var id = $(el).closest('li').data('id');
+		var todos = App.todos;
+		var i = todos.length;
+
+		while (i--) {
+			if (todos[i].id === id) {
+				return i;
+			}
+		}
+	}
+
+	function create(e) {
+		var $input = $(e.target);
+		var val = $input.val().trim();
+
+		if (e.which !== ENTER_KEY || !val) {
+			return;
+		}
+
+		App.todos.push({
+			id: util.uuid(),
+			title: val,
+			completed: false
+		});
+
+		$input.val('');
+
+		App.render();
+	}
+
+	function toggle(e) {
+		var i = indexFromEl(e.target);
+		App.todos[i].completed = !App.todos[i].completed;
+		App.render();
+	}
+
+	function edit(e) {
+		var $input = $(e.target).closest('li').addClass('editing').find('.edit');
+		$input.val($input.val()).focus();
+	}
+
+	function editKeyup(e) {
+		if (e.which === ENTER_KEY) {
+			e.target.blur();
+		}
+
+		if (e.which === ESCAPE_KEY) {
+			$(e.target).data('abort', true).blur();
+		}
+	}
+
+	function update(e) {
+		var el = e.target;
+		var $el = $(el);
+		var val = $el.val().trim();
+
+		if (!val) {
+			App.destroy(e);
+			return;
+		}
+
+		if ($el.data('abort')) {
+			$el.data('abort', false);
+		} else {
+			App.todos[indexFromEl(el)].title = val;
+		}
+
+		App.render();
+	}
+
+	function destroy(e) {
+		App.todos.splice(indexFromEl(e.target), 1);
+		App.render();
+	}
+
+});
